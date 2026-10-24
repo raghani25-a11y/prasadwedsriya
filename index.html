@@ -419,7 +419,10 @@ body.reduced #revealBtn{animation:none;}
   -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;
   filter:drop-shadow(0 0 8px rgba(232,198,112,.55)) drop-shadow(0 1px 1px rgba(120,80,20,.3));
   animation:titleShine 3.2s linear infinite;}
+@keyframes scSwapIn{0%{opacity:0;transform:translateY(5px) scale(.97);}100%{opacity:1;transform:none;}}
+.scratch-script.sc-swap{animation:titleShine 3.2s linear infinite, scSwapIn .6s var(--ease) both;}
 body.reduced .scratch-script{animation:none;}
+body.reduced .scratch-script.sc-swap{animation:none;}
 .scratch3d{perspective:1250px;perspective-origin:50% 42%;width:min(94vw,460px);margin:0 auto;}
 /* a sleek, background-free floral frame — the flowers float over the slide */
 .scratch-card{position:relative;width:100%;aspect-ratio:935/797;
@@ -969,7 +972,7 @@ body.reduced .gi-img{animation:none;}
   <section class="slide" id="slide2">
     <div class="wrap">
       <div class="eyebrow">The auspicious dates are sealed</div>
-      <div class="scratch-script">Shubh Muhurat</div>
+      <div class="scratch-script" id="scScript">Scratch to Reveal</div>
       <div class="scratch3d">
         <div class="scratch-card" id="scCard">
           <div class="scratch-stage" id="scStage">
@@ -1503,6 +1506,7 @@ function checkScratch(){if(scDone||!scReady)return;
 }
 function finishScratch(){if(scDone)return;scDone=true;sc.classList.add("done");hideScHint();
  {const rb=$("#revealBtn");if(rb)rb.style.display="none";}   // hide the shortcut once the dates are revealed
+ {const ss=$("#scScript");if(ss&&ss.textContent.trim()!=="Shubh Muhurat"){ss.textContent="Shubh Muhurat";ss.classList.add("sc-swap");}}  // prompt → auspicious words once scratched
  const st=$("#scStage");if(st)st.classList.add("done");scTiltReset();
  haptic([10,40,20,30,60]);addEnergy(.6);burstPetals();launchFireworks();revealCountdown();}
 
