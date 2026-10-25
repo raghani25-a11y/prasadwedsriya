@@ -1931,7 +1931,11 @@ init();
      if(!Audio_.started){startAudio();setMusic(true);} else if(Audio_.el&&Audio_.el.paused){Audio_.el.play().catch(()=>{});}
      gi.classList.add("rise"); document.body.classList.add("intro-done"); addEnergy(.4); haptic([10,30,16]);
      setTimeout(()=>{if(gi&&gi.parentNode)gi.remove();},2100);
-     armHint(1800,true); };   // once the invitation is unveiled, prompt to slide up and auto-advance if idle
+     // wait for the "Begin our story" button to finish appearing (end of the name choreography), THEN prompt + auto-advance
+     const cta=document.querySelector("#slide1 .arrival-cta");let armed=false;
+     const armArrival=()=>{ if(armed||index!==0)return; armed=true; armHint(600,true); };
+     if(cta&&!reduced){ cta.addEventListener("animationend",armArrival,{once:true}); setTimeout(armArrival,12200); }  // fallback if animationend never fires
+     else { setTimeout(armArrival,600); } };
    gi.addEventListener("click",riseUp);
    setTimeout(riseUp, 5000);  // Ganesha stays ~5s (a touch lifts it sooner), then the shrine sweeps upward to reveal the invitation
  } else {
