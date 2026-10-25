@@ -777,7 +777,12 @@ body.reduced .map-title{animation:none;}
 .map-rich{position:relative;display:block;width:min(84vw,58vh,400px);aspect-ratio:1;margin:0 auto;border-radius:20px;overflow:hidden;text-decoration:none;
   background:linear-gradient(160deg,rgba(18,26,24,.24),rgba(9,15,13,.34));
   box-shadow:0 18px 44px rgba(20,12,4,.55), 0 0 0 1.5px var(--gold), 0 0 0 4px rgba(207,165,78,.24), 0 0 0 5.5px var(--gold),
-    0 0 26px rgba(255,220,140,.3), inset 0 0 44px rgba(255,220,140,.09);}
+    0 0 20px rgba(255,220,140,.32), inset 0 0 40px rgba(255,220,140,.09);
+  animation:mapCardGlow 2.6s ease-in-out infinite;}
+@keyframes mapCardGlow{
+ 0%,100%{box-shadow:0 18px 44px rgba(20,12,4,.55),0 0 0 1.5px var(--gold),0 0 0 4px rgba(207,165,78,.24),0 0 0 5.5px var(--gold),0 0 18px 1px rgba(255,220,140,.3),inset 0 0 34px rgba(255,220,140,.08);}
+ 50%{box-shadow:0 18px 44px rgba(20,12,4,.55),0 0 0 1.5px #ffe8a8,0 0 0 4px rgba(242,208,120,.44),0 0 0 5.5px #ffe8a8,0 0 44px 6px rgba(255,228,150,.8),inset 0 0 58px rgba(255,228,150,.2);}}
+body.reduced .map-rich{animation:none;}
 .map-rich svg{width:100%;height:100%;display:block;}
 .map-rich-note{position:absolute;left:0;right:0;bottom:0;z-index:2;
   font-family:var(--caps);letter-spacing:.14em;text-transform:uppercase;font-size:9px;font-weight:600;color:#fff6e6;
@@ -1113,12 +1118,12 @@ body.reduced .gi-img{animation:none;}
           <circle cx="332" cy="332" r="60" fill="#bfe6a8" opacity=".08"/>
           <!-- road network: soft glow layer under a bright thin layer -->
           <g stroke="#f0d79a" fill="none" stroke-linecap="round">
-            <g stroke-width="7" opacity=".10"><path d="M0 142 H400"/><path d="M0 268 H400"/><path d="M118 0 V400"/><path d="M286 0 V400"/><path d="M0 360 Q150 332 270 356 T400 346"/><path d="M38 0 Q72 160 182 232 T360 400"/></g>
+            <g stroke-width="7" opacity=".16"><path d="M0 142 H400"/><path d="M0 268 H400"/><path d="M118 0 V400"/><path d="M286 0 V400"/><path d="M0 360 Q150 332 270 356 T400 346"/><path d="M38 0 Q72 160 182 232 T360 400"/></g>
             <g stroke-width="1.5" opacity=".48"><path d="M0 142 H400"/><path d="M0 268 H400"/><path d="M118 0 V400"/><path d="M286 0 V400"/><path d="M0 360 Q150 332 270 356 T400 346"/><path d="M38 0 Q72 160 182 232 T360 400"/></g>
             <g stroke-width="1" opacity=".26" stroke-dasharray="2 7"><path d="M60 0 V400"/><path d="M210 0 V400"/><path d="M0 200 H400"/><path d="M0 328 H400"/></g>
           </g>
           <!-- THE ROUTE — a glowing line that flows, with a live pulse running along it -->
-          <path d="M64 348 C150 326 118 250 196 214 S300 150 300 86" fill="none" stroke="#ffe8ad" stroke-width="10" stroke-linecap="round" opacity=".26"/>
+          <path d="M64 348 C150 326 118 250 196 214 S300 150 300 86" fill="none" stroke="#ffe8ad" stroke-linecap="round"><animate attributeName="stroke-width" values="9;15;9" dur="2.2s" repeatCount="indefinite"/><animate attributeName="opacity" values=".22;.55;.22" dur="2.2s" repeatCount="indefinite"/></path>
           <path d="M64 348 C150 326 118 250 196 214 S300 150 300 86" fill="none" stroke="url(#mroute)" stroke-width="4.6" stroke-linecap="round" stroke-dasharray="16 13">
             <animate attributeName="stroke-dashoffset" values="29;0" dur="0.9s" repeatCount="indefinite"/>
           </path>
