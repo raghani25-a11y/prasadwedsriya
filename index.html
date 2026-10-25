@@ -1565,25 +1565,22 @@ function fwSize(){const d=Math.min(1,devicePixelRatio||1);fwCv.width=Math.round(
 const FWC=["#ffd34d","#ffe49a","#ff5a5a","#ff8a3d","#5ad1a0","#54b8ff","#e86a9b","#c77dff","#f3c969","#8affd1"];
 function fwRand(a,b){return a+Math.random()*(b-a);}
 /* one shell bursting — type gives it a real firework's character (peony, willow, chrysanthemum, ring, crackle) */
+const FW_CAP=320;   // hard ceiling on live sparks — keeps every frame cheap
 function fwBurst(x,y,col,big,pal){
+ if(fwP.length>FW_CAP)return;                                 // never flood the frame
  const base=col||FWC[(Math.random()*FWC.length)|0];
- const types=reduced?["peony"]:["peony","willow","chrys","peony","ring","crackle","willow"];
+ const types=reduced?["peony"]:["peony","willow","chrys","peony","crackle"];
  const type=types[(Math.random()*types.length)|0];
- fwP.push({flash:true,x,y,life:1,r:big?96:62,col:"#fff7e0"});           // bright detonation flash
+ fwP.push({flash:true,x,y,life:1,r:big?78:50,col:"#fff7e0"});
  let n,speed,life,grav,drag,trail,tw,ember;
- if(type==="willow"){ n=reduced?16:(big?66:46); speed=big?fwRand(1.9,3.2):fwRand(1.5,2.4); life=fwRand(1.9,2.8); grav=.058; drag=.986; trail=8; tw=false; ember=true; }
- else if(type==="chrys"){ n=reduced?18:(big?72:50); speed=big?fwRand(2.6,4.5):fwRand(1.9,3.3); life=fwRand(1.4,2.1); grav=.05; drag=.982; trail=7; tw=Math.random()<.4; ember=true; }
- else if(type==="ring"){ n=reduced?20:(big?58:42); speed=big?fwRand(3.1,4.0):fwRand(2.4,3.1); life=fwRand(1.1,1.6); grav=.042; drag=.986; trail=6; tw=false; ember=true; }
- else if(type==="crackle"){ n=reduced?20:(big?92:66); speed=big?fwRand(1.3,2.9):fwRand(1.0,2.1); life=fwRand(.6,1.0); grav=.03; drag=.965; trail=3; tw=true; ember=false; }
- else { n=reduced?20:(big?76:52); speed=big?fwRand(2.6,4.9):fwRand(1.9,3.5); life=fwRand(1.2,1.8); grav=.048; drag=.98; trail=7; tw=Math.random()<.5; ember=true; }
+ if(type==="willow"){ n=reduced?12:(big?34:24); speed=big?fwRand(1.9,3.0):fwRand(1.5,2.3); life=fwRand(1.8,2.6); grav=.058; drag=.987; trail=6; tw=false; ember=true; }
+ else if(type==="chrys"){ n=reduced?12:(big?36:26); speed=big?fwRand(2.6,4.2):fwRand(1.9,3.2); life=fwRand(1.3,1.9); grav=.05; drag=.983; trail=5; tw=false; ember=true; }
+ else if(type==="crackle"){ n=reduced?14:(big?42:30); speed=big?fwRand(1.3,2.7):fwRand(1.0,2.0); life=fwRand(.6,1.0); grav=.03; drag=.966; trail=0; tw=true; ember=false; }
+ else { n=reduced?14:(big?38:26); speed=big?fwRand(2.6,4.6):fwRand(1.9,3.4); life=fwRand(1.1,1.7); grav=.048; drag=.981; trail=4; tw=Math.random()<.4; ember=true; }
  for(let i=0;i<n;i++){
-  const a=(type==="ring")?(6.283*i/n):(6.283*i/n)+fwRand(-.12,.12);
-  const sp=(type==="ring")?speed*fwRand(.95,1.06):speed*fwRand(.42,1.07);
-  fwP.push({x,y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,life:life*fwRand(.82,1.08),col:(Math.random()<.15?"#fff6d8":base),r:fwRand(1.1,2.6),tr:[],trMax:trail,drag,grav,tw,ember});
+  const a=(6.283*i/n)+fwRand(-.12,.12), sp=speed*fwRand(.45,1.06);
+  fwP.push({x,y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,life:life*fwRand(.82,1.08),col:(Math.random()<.14?"#fff6d8":base),r:fwRand(1.2,2.6),tr:trail?[]:null,trMax:trail,drag,grav,tw,ember});
  }
- if(!reduced&&type!=="crackle"&&Math.random()<.5){const src=pal||FWC,c2=src[(Math.random()*src.length)|0],m=(n*.45)|0;  // a contrasting pistil at the core
-  for(let i=0;i<m;i++){const a=fwRand(0,6.28),sp=speed*fwRand(.24,.58);
-   fwP.push({x,y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,life:fwRand(.8,1.25),col:c2,r:fwRand(1,1.8),tr:[],trMax:5,drag:.985,grav:.048,tw:true,ember:false});}}
  haptic(5);addEnergy(.05);
 }
 function fwRocket(col){const tx=innerWidth*fwRand(.1,.9),ty=innerHeight*fwRand(.1,.34);
@@ -1592,10 +1589,10 @@ function launchFireworks(){fwSize();
  if(reduced){fwBurst(innerWidth*.5,innerHeight*.3,null,true);}
  else {
   fwBurst(innerWidth*.5,innerHeight*.28,null,true);                       // instant impact
-  setTimeout(()=>fwBurst(innerWidth*.27,innerHeight*.24,null,false),140);
-  setTimeout(()=>fwBurst(innerWidth*.73,innerHeight*.30,null,false),280);
-  let t=420;for(let k=0;k<22;k++){setTimeout(fwRocket,t);t+=fwRand(190,320);}  // ~7s sustained barrage
-  const fin=6800;for(let k=0;k<6;k++)setTimeout(()=>fwBurst(innerWidth*fwRand(.18,.82),innerHeight*fwRand(.16,.38),null,Math.random()<.6),fin+k*fwRand(90,160));  // grand finale
+  setTimeout(()=>fwBurst(innerWidth*.28,innerHeight*.25,null,false),170);
+  setTimeout(()=>fwBurst(innerWidth*.72,innerHeight*.31,null,false),340);
+  let t=480;for(let k=0;k<12;k++){setTimeout(fwRocket,t);t+=fwRand(300,480);}  // a calmer, well-spaced barrage
+  const fin=6600;for(let k=0;k<4;k++)setTimeout(()=>fwBurst(innerWidth*fwRand(.22,.78),innerHeight*fwRand(.18,.36),null,Math.random()<.55),fin+k*fwRand(150,230));  // finale
  }
  if(!fwRun){fwRun=true;requestAnimationFrame(fwTick);}}
 const EVFW={};
@@ -1605,25 +1602,26 @@ function fwTick(){fwx.clearRect(0,0,innerWidth,innerHeight);
  fwx.globalCompositeOperation="lighter";fwx.lineCap="round";
  // rising rockets with a flickering trail
  for(let i=fwR.length-1;i>=0;i--){const r=fwR[i];
-  r.tr.push({x:r.x,y:r.y});if(r.tr.length>10)r.tr.shift();
+  r.tr.push({x:r.x,y:r.y});if(r.tr.length>6)r.tr.shift();
   r.x+=r.wob||0;r.y+=r.vy;r.vy+=.14;
   for(let t=0;t<r.tr.length;t++){const pt=r.tr[t],al=t/r.tr.length*.6*(.7+.3*Math.random());
    fwx.globalAlpha=al;fwx.fillStyle=r.col;fwx.beginPath();fwx.arc(pt.x,pt.y,1.5*al+.4,0,6.28);fwx.fill();}
   fwx.globalAlpha=1;fwx.fillStyle="#fff7e0";fwx.beginPath();fwx.arc(r.x,r.y,2.4,0,6.28);fwx.fill();
   if(r.y<=r.ty||r.vy>=-.6){fwBurst(r.x,r.y,r.col,Math.random()<.45);fwR.splice(i,1);}}
  // burst sparks — gravity, drag, trailing streaks, embers
+ const now=performance.now();
  for(let i=fwP.length-1;i>=0;i--){const p=fwP[i];
-  if(p.flash){p.life-=.08;if(p.life<=0){fwP.splice(i,1);continue;}
+  if(p.flash){p.life-=.09;if(p.life<=0){fwP.splice(i,1);continue;}
    fwx.globalAlpha=p.life*.5;fwx.fillStyle=p.col;fwx.beginPath();fwx.arc(p.x,p.y,p.r*(1.4-p.life*.4),0,6.28);fwx.fill();continue;}
-  const dg=(p.drag==null?.99:p.drag);p.vy+=(p.grav==null?.045:p.grav);p.vx*=dg;p.vy*=dg;p.x+=p.vx;p.y+=p.vy;p.life-=.012;
+  const dg=(p.drag==null?.99:p.drag);p.vy+=(p.grav==null?.045:p.grav);p.vx*=dg;p.vy*=dg;
+  const ox=p.x,oy=p.y;p.x+=p.vx;p.y+=p.vy;p.life-=.013;
   if(p.life<=0){fwP.splice(i,1);continue;}
-  const col=(p.ember&&p.life<.5)?(p.life<.25?"#ff5a1e":"#ff9436"):p.col;   // sparks cool into warm embers as they die
-  if(p.tr){p.tr.push({x:p.x,y:p.y});if(p.tr.length>(p.trMax||5))p.tr.shift();
-   for(let t=0;t<p.tr.length-1;t++){const a=t/p.tr.length,al=a*p.life*.5;
-    fwx.globalAlpha=al;fwx.strokeStyle=col;fwx.lineWidth=p.r*a;fwx.beginPath();fwx.moveTo(p.tr[t].x,p.tr[t].y);fwx.lineTo(p.tr[t+1].x,p.tr[t+1].y);fwx.stroke();}}
-  let al=p.life;if(p.tw&&p.life<.7)al*=.3+.7*Math.abs(Math.sin(performance.now()*.03+p.x*.3));
-  fwx.globalAlpha=Math.max(0,al*.26);fwx.fillStyle=col;fwx.beginPath();fwx.arc(p.x,p.y,p.r*2.6,0,6.28);fwx.fill();
-  fwx.globalAlpha=Math.max(0,al);fwx.beginPath();fwx.arc(p.x,p.y,p.r,0,6.28);fwx.fill();}
+  const col=(p.ember&&p.life<.5)?(p.life<.25?"#ff5a1e":"#ff9436"):p.col;
+  let al=p.life;if(p.tw&&p.life<.7)al*=.3+.7*Math.abs(Math.sin(now*.03+p.x*.3));
+  if(p.tr){p.tr.push({x:ox,y:oy});if(p.tr.length>p.trMax)p.tr.shift();   // one cheap streak from the oldest point to now
+   const o=p.tr[0];fwx.globalAlpha=Math.max(0,al*.5);fwx.strokeStyle=col;fwx.lineWidth=p.r*.9;
+   fwx.beginPath();fwx.moveTo(o.x,o.y);fwx.lineTo(p.x,p.y);fwx.stroke();}
+  fwx.globalAlpha=Math.max(0,al);fwx.fillStyle=col;fwx.beginPath();fwx.arc(p.x,p.y,p.r,0,6.28);fwx.fill();}
  fwx.globalAlpha=1;fwx.globalCompositeOperation="source-over";
  if(fwP.length>0||fwR.length>0)requestAnimationFrame(fwTick);else{fwRun=false;fwx.clearRect(0,0,innerWidth,innerHeight);fwCv.width=0;fwCv.height=0;}}
 $("#revealBtn").addEventListener("click",()=>{if(!Audio_.started){startAudio();setMusic(true);}finishScratch();});
