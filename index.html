@@ -617,7 +617,7 @@ body.reduced .occ-card::after{animation:none;}
   100%{transform:translate3d(calc(var(--sw,18px)*-1),112vh,0) rotate(360deg);opacity:.12;}}
 body.reduced #occPetals{display:none!important;}
 .occ-kicker{font-family:var(--caps);letter-spacing:.24em;font-size:9.5px;color:var(--label);text-transform:uppercase;font-weight:600;}
-.occ-title{font-family:var(--script),cursive;font-weight:400;letter-spacing:.01em;
+.occ-title{font-family:var(--script),cursive;font-weight:400;letter-spacing:.01em;white-space:nowrap;
   font-size:clamp(34px,9.8vw,52px);line-height:1.2;padding:2px 10px;
   -webkit-text-stroke:0.7px rgba(165,116,36,.5);
   background:linear-gradient(100deg,#a9772a 0%,#dcb45e 18%,#fff3cb 38%,#f0d184 52%,#bf9640 72%,#8a5c12 100%);
@@ -1197,7 +1197,7 @@ const dbg={};
 function syncVP(){const vv=visualViewport;const h=vv?vv.height:innerHeight;
   document.documentElement.style.setProperty("--vph",h+"px");dbg.vp=innerWidth+"×"+Math.round(h);}
 if(window.visualViewport){visualViewport.addEventListener("resize",syncVP);}
-addEventListener("resize",()=>{syncVP();sizeFx();sizeScratch();try{fwSize();}catch(e){}});
+addEventListener("resize",()=>{syncVP();sizeFx();sizeScratch();try{fwSize();}catch(e){}try{fitOccTitles();}catch(e){}});
 addEventListener("orientationchange",()=>setTimeout(()=>{syncVP();sizeFx();sizeScratch();},300));
 
 /* ---------- ornaments ---------- */
@@ -1727,6 +1727,17 @@ function buildOccLayers(){const host=$("#occBg");if(!host||_occLayers.length)ret
  if(_occLayers[0])_occLayers[0].classList.add("show");}
 function setOccBg(i){if(!_occLayers.length)buildOccLayers();
  _occLayers.forEach((el,k)=>{if(el)el.classList.toggle("show",k===i);});}
+/* keep every occasion title on ONE line: shrink only the ones (e.g. "Wedding Ceremony") too wide for the card */
+function fitOccTitles(){
+ document.querySelectorAll(".occ-title").forEach(t=>{
+   const card=t.closest(".occ-card");if(!card)return;
+   t.style.fontSize="";                                   // back to the stylesheet size
+   const cs=getComputedStyle(card);
+   const avail=card.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight)-2;
+   if(avail<=0)return;
+   let fs=parseFloat(getComputedStyle(t).fontSize)||40,guard=0;
+   while(t.scrollWidth>avail&&fs>16&&guard<80){fs-=1;t.style.fontSize=fs+"px";guard++;}
+ });}
 /* decode the main slide scenery + map up front too, so the whole flow is flicker-free */
 const _bgCache=[];let _preloaded=false;
 function preloadAllBgs(){if(_preloaded)return;_preloaded=true;
@@ -1878,6 +1889,8 @@ function init(){syncVP();sizeFx();initParts();buildScenes();buildOccLayers();set
  timeOfDay();setInterval(timeOfDay,60000);
  updateDots();
  setTimeout(sizeScratch,100);
+ setTimeout(fitOccTitles,120);                                          // fit occasion titles to one line
+ if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{try{fitOccTitles();}catch(e){}});  // re-fit once the script font is loaded
  // music pref (still needs a gesture to actually start)
  let mp="1";try{mp=localStorage.getItem("rp_music")||"1";}catch(e){}Audio_.on=(mp==="1");
  $("#music").classList.toggle("muted",!Audio_.on);$("#music").innerHTML='<span>'+(Audio_.on?ORN.muteOn:ORN.muteOff)+'</span>';
