@@ -649,7 +649,7 @@ body.reduced .thanks-bless{animation:none;}
 .tf-head{font-family:var(--serif);font-style:italic;font-weight:600;color:#8a5a1c;font-size:4cqi;margin-bottom:1.8cqi;}
 .tf-row{display:flex;flex-direction:column;align-items:center;gap:.6cqi;}
 .tf-label{font-family:var(--caps);letter-spacing:.13em;text-transform:uppercase;color:#9a6a1e;font-size:2.5cqi;font-weight:700;}
-.tf-name{font-family:var(--serif);font-weight:700;color:#1c4a2f;line-height:1.22;font-size:4.5cqi;}
+.tf-name{font-family:var(--serif);font-weight:800;color:#1c4a2f;line-height:1.2;font-size:5.2cqi;max-width:66cqi;-webkit-text-stroke:.4px #1c4a2f;}
 .tf-hr{width:24%;height:1.5px;margin:2cqi 0;
   background:linear-gradient(90deg,rgba(201,162,75,0),rgba(201,162,75,.85) 25%,rgba(201,162,75,.85) 75%,rgba(201,162,75,0));}
 /* the share button — a raised 3D emerald pill with a shimmering gold border */
@@ -1400,11 +1400,11 @@ $("#music").addEventListener("click",()=>{if(!Audio_.started)startAudio();setMus
 function kickAudio(){
  if(Audio_.on===false)return;
  if(!Audio_.started){startAudio();if(!Audio_.on)setMusic(true);return;}
- if(Audio_.el&&Audio_.el.paused){Audio_.el.play().then(()=>fadeTo(.62)).catch(()=>{});}
+ if(Audio_.el&&Audio_.el.paused&&!Audio_.el.ended){Audio_.el.play().then(()=>fadeTo(.62)).catch(()=>{});}
 }
 ["pointerdown","pointerup","touchend","click","keydown"].forEach(ev=>
  addEventListener(ev,kickAudio,{passive:true,capture:true}));
-document.addEventListener("visibilitychange",()=>{ if(!document.hidden&&Audio_.on&&Audio_.el&&Audio_.el.paused){Audio_.el.play().catch(()=>{});}});
+document.addEventListener("visibilitychange",()=>{ if(!document.hidden&&Audio_.on&&Audio_.el&&Audio_.el.paused&&!Audio_.el.ended){Audio_.el.play().catch(()=>{});}});
 
 /* ============================================================
    VERTICAL NAVIGATION (scroll upward)
@@ -1990,7 +1990,7 @@ init();
  }
  function setTrans(on){[L,R,val].forEach(el=>{if(el)el.style.transition=on?"transform 1.7s cubic-bezier(.33,0,.15,1)":"none";});}
  function openAll(){ if(opened)return; opened=true;
-   if(!Audio_.started){startAudio();setMusic(true);} else if(Audio_.el&&Audio_.el.paused){Audio_.el.play().catch(()=>{});}
+   if(!Audio_.started){startAudio();setMusic(true);} else if(Audio_.el&&Audio_.el.paused&&!Audio_.el.ended){Audio_.el.play().catch(()=>{});}
    setTrans(true); stage.classList.add("open"); apply(1);
    haptic([10,30,16]); addEnergy(.4);
    setTimeout(()=>{stage.classList.add("gone");},2900);
@@ -2009,7 +2009,7 @@ init();
  if(gi){
    let risen=false;
    const riseUp=()=>{ if(risen)return; risen=true;
-     if(!Audio_.started){startAudio();setMusic(true);} else if(Audio_.el&&Audio_.el.paused){Audio_.el.play().catch(()=>{});}
+     if(!Audio_.started){startAudio();setMusic(true);} else if(Audio_.el&&Audio_.el.paused&&!Audio_.el.ended){Audio_.el.play().catch(()=>{});}
      gi.classList.add("rise"); document.body.classList.add("intro-done"); addEnergy(.4); haptic([10,30,16]);
      setTimeout(()=>{if(gi&&gi.parentNode)gi.remove();},2100);
      // wait for the "Begin our story" button to finish appearing (end of the name choreography), THEN prompt + auto-advance
