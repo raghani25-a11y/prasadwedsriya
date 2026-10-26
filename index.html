@@ -644,15 +644,14 @@ body.reduced #occPetals{display:none!important;}
   animation:titleShine 3.2s linear infinite;}
 body.reduced .thanks-bless{animation:none;}
 /* families side by side — groom's (left) & bride's (right), drawn live over the card */
-.thanks-fam{position:absolute;left:7.5%;right:7.5%;top:46%;pointer-events:none;
+.thanks-fam{position:absolute;left:7%;right:7%;top:45.6%;pointer-events:none;
   display:flex;flex-direction:column;align-items:center;text-align:center;}
-.tf-head{font-family:var(--serif);font-style:italic;font-weight:600;color:#8a5a1c;font-size:4cqi;margin-bottom:2cqi;}
-.tf-cols{display:flex;align-items:stretch;justify-content:center;gap:3cqi;width:100%;}
-.tf-col{flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;}
-.tf-label{font-family:var(--caps);letter-spacing:.13em;text-transform:uppercase;color:#9a6a1e;font-size:2.5cqi;font-weight:700;margin-bottom:1.8cqi;}
-.tf-name{font-family:var(--serif);font-weight:700;color:#1c4a2f;line-height:1.24;font-size:4.3cqi;flex:1 1 auto;display:flex;align-items:center;justify-content:center;text-align:center;}
-.tf-div{flex:0 0 auto;align-self:stretch;width:1.4px;margin:0;
-  background:linear-gradient(180deg,rgba(201,162,75,0),rgba(201,162,75,.85) 25%,rgba(201,162,75,.85) 75%,rgba(201,162,75,0));}
+.tf-head{font-family:var(--serif);font-style:italic;font-weight:600;color:#8a5a1c;font-size:4cqi;margin-bottom:1.8cqi;}
+.tf-row{display:flex;flex-direction:column;align-items:center;gap:.6cqi;}
+.tf-label{font-family:var(--caps);letter-spacing:.13em;text-transform:uppercase;color:#9a6a1e;font-size:2.5cqi;font-weight:700;}
+.tf-name{font-family:var(--serif);font-weight:700;color:#1c4a2f;line-height:1.22;font-size:4.5cqi;}
+.tf-hr{width:24%;height:1.5px;margin:2cqi 0;
+  background:linear-gradient(90deg,rgba(201,162,75,0),rgba(201,162,75,.85) 25%,rgba(201,162,75,.85) 75%,rgba(201,162,75,0));}
 /* the share button — a raised 3D emerald pill with a shimmering gold border */
 .thanks-share{position:absolute;left:23%;top:83.5%;width:54%;height:5.9%;
   display:flex;align-items:center;justify-content:center;border:none;border-radius:999px;cursor:pointer;overflow:hidden;
@@ -1173,11 +1172,9 @@ body.reduced .gi-img{animation:none;}
       <div class="thanks-bless" id="thanksBless" aria-hidden="true">BLESSINGS</div>
       <div class="thanks-fam" aria-hidden="true">
         <div class="tf-head">From the families of</div>
-        <div class="tf-cols">
-          <div class="tf-col"><div class="tf-label">Groom's Family</div><div class="tf-name">Sangeeta &amp; Umeshchandra Raghuwanshi</div></div>
-          <div class="tf-div"></div>
-          <div class="tf-col"><div class="tf-label">Bride's Family</div><div class="tf-name">Neha &amp; Gopal Shah</div></div>
-        </div>
+        <div class="tf-row"><div class="tf-label">Groom's Family</div><div class="tf-name">Sangeeta &amp; Umeshchandra Raghuwanshi</div></div>
+        <div class="tf-hr"></div>
+        <div class="tf-row"><div class="tf-label">Bride's Family</div><div class="tf-name">Neha &amp; Gopal Shah</div></div>
       </div>
       <button class="thanks-share" id="shareBtn" aria-label="Share this invitation"><span class="ts-label">Share this invitation</span></button>
     </div>
