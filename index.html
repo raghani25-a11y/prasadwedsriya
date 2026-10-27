@@ -2031,6 +2031,23 @@ init();
    3D CURTAIN — pull the cord, panels swing open to the sides
    ============================================================ */
 (function(){
+ /* ---- OPENING SHRINE: set the lift up FIRST and bulletproofed, before anything downstream can throw or early-return and leave the Ganesha frozen ---- */
+ (function(){
+   const gi=document.getElementById("ganeshaIntro"); if(!gi) return;
+   let _saved=0; try{_saved=parseInt(sessionStorage.getItem("rp_slide")||"0",10)||0;}catch(e){}
+   if(_saved>0){ try{if(gi.parentNode)gi.remove();}catch(e){} try{goTo(_saved,true);}catch(e){} return; }   // a refreshed tab resumes where the guest was
+   let risen=false;
+   const riseUp=()=>{ if(risen)return; risen=true;
+     try{ if(!Audio_.started){startAudio();setMusic(true);} else if(Audio_.el&&Audio_.el.paused&&!Audio_.el.ended){Audio_.el.play().catch(()=>{});} }catch(e){}
+     gi.classList.add("rise"); document.body.classList.add("intro-done"); try{addEnergy(.4);}catch(e){} try{haptic([10,30,16]);}catch(e){}
+     setTimeout(()=>{try{if(gi&&gi.parentNode)gi.remove();}catch(e){}},2100);   // shrine is gone after the sweep no matter what
+     try{ const cta=document.querySelector("#slide1 .arrival-cta");let armed=false;
+       const armArrival=()=>{ if(armed||index!==0)return; armed=true; try{armHint(600,true);}catch(e){} };
+       if(cta&&!reduced){ cta.addEventListener("animationend",armArrival,{once:true}); setTimeout(armArrival,12200); } else { setTimeout(armArrival,600); }
+     }catch(e){} };
+   ["click","pointerup","touchend"].forEach(ev=>{try{gi.addEventListener(ev,riseUp,{passive:true});}catch(e){try{gi.addEventListener(ev,riseUp);}catch(_){}}});  // iOS Safari skips click on a plain div — touch/pointer cover it
+   setTimeout(riseUp,5000);   // and it lifts itself after 5s even with no tap at all
+ })();
  const stage=$("#curtainStage");if(!stage)return;
  const L=$(".cpanel.l"),R=$(".cpanel.r"),hint=$("#chint"),seam=$(".cseam"),val=$(".cvalance");
  let opened=false;
@@ -2055,29 +2072,7 @@ init();
  /* a tap anywhere opens at once; otherwise the curtains open themselves right away */
  stage.addEventListener("pointerup",openAll);
  stage.addEventListener("click",openAll);
- startAudio();                 // best-effort: try to sound the moment the invite opens
- /* opening: the curtained Ganesha shrine lifts straight UP to unveil the invitation — one motion */
- const gi=document.getElementById("ganeshaIntro");
- if(stage) stage.style.display="none";   // sideways curtains retired; the curtain now rises with the shrine
- /* resume on reload — a refreshed tab lands back where the guest was, skipping the whole opening */
- let _saved=0; try{_saved=parseInt(sessionStorage.getItem("rp_slide")||"0",10)||0;}catch(e){}
- if(_saved>0){ if(gi&&gi.parentNode)gi.remove(); goTo(_saved,true); return; }
- if(gi){
-   let risen=false;
-   const riseUp=()=>{ if(risen)return; risen=true;
-     if(!Audio_.started){startAudio();setMusic(true);} else if(Audio_.el&&Audio_.el.paused&&!Audio_.el.ended){Audio_.el.play().catch(()=>{});}
-     gi.classList.add("rise"); document.body.classList.add("intro-done"); addEnergy(.4); haptic([10,30,16]);
-     setTimeout(()=>{if(gi&&gi.parentNode)gi.remove();},2100);
-     // wait for the "Begin our story" button to finish appearing (end of the name choreography), THEN prompt + auto-advance
-     const cta=document.querySelector("#slide1 .arrival-cta");let armed=false;
-     const armArrival=()=>{ if(armed||index!==0)return; armed=true; armHint(600,true); };
-     if(cta&&!reduced){ cta.addEventListener("animationend",armArrival,{once:true}); setTimeout(armArrival,12200); }  // fallback if animationend never fires
-     else { setTimeout(armArrival,600); } };
-   gi.addEventListener("click",riseUp);
-   setTimeout(riseUp, 5000);  // Ganesha stays ~5s (a touch lifts it sooner), then the shrine sweeps upward to reveal the invitation
- } else {
-   setTimeout(openAll, 650);
- }
+ if(stage) stage.style.display="none";   // sideways curtains retired; the shrine lift (set up at the top of this block) handles the opening
 })();
 })();
 </script>
