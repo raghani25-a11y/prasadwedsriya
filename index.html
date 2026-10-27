@@ -730,10 +730,17 @@ body.reduced .occ-title{animation:none;}
   transform:translate(-50%,-50%);border-radius:50%;z-index:-1;
   background:radial-gradient(closest-side, var(--glow), transparent 72%);opacity:.6;}
 .gan-cut{width:100%;height:auto;display:block;
-  filter:drop-shadow(0 3px 6px rgba(120,80,30,.3));animation:ganShine 3s ease-in-out infinite;}
-@keyframes ganShine{0%,100%{filter:brightness(1) drop-shadow(0 3px 6px rgba(120,80,30,.3));}
-  50%{filter:brightness(1.17) drop-shadow(0 0 11px rgba(255,221,130,.82)) drop-shadow(0 3px 6px rgba(120,80,30,.3));}}
-body.reduced .gan-cut{animation:none;}
+  filter:drop-shadow(0 0 6px rgba(255,210,120,.35)) drop-shadow(0 3px 6px rgba(120,80,30,.3));}
+/* a bright specular glint sweeps across the gold like a real reflection — masked to the Ganesha's shape */
+.gan-shine{position:absolute;inset:0;pointer-events:none;z-index:3;
+  -webkit-mask-size:contain;-webkit-mask-repeat:no-repeat;-webkit-mask-position:center;
+  mask-size:contain;mask-repeat:no-repeat;mask-position:center;
+  background:linear-gradient(118deg,transparent 41%,rgba(255,246,220,.18) 46%,rgba(255,255,255,.95) 50%,rgba(255,246,220,.18) 54%,transparent 59%);
+  background-size:260% 100%;background-position:175% 0;
+  mix-blend-mode:screen;
+  animation:ganSweep 3.6s cubic-bezier(.45,0,.4,1) infinite;}
+@keyframes ganSweep{0%{background-position:175% 0;}42%{background-position:-75% 0;}100%{background-position:-75% 0;}}
+body.reduced .gan-shine{display:none;}
 .gan-shadow{display:none;}
 .gan-cap{display:flex;flex-direction:column;align-items:center;gap:0;margin-top:2px;
   padding:3px 14px;border-radius:12px;background:rgba(255,250,240,.6);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);
@@ -1869,7 +1876,8 @@ const MAP_IMG="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBA
 const mapURL="https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(CFG.mapQuery);
 ["#mapLink","#mapCard"].forEach(sel=>{const el=$(sel);if(el){el.href=mapURL;el.addEventListener("click",(e)=>{if(dragMoved&&sel==="#mapCard"){e.preventDefault();return;}haptic(8);});}});
 (function(){var mb=document.getElementById("mapBg");if(mb)mb.style.backgroundImage="url("+MAP_IMG+")";})();
-(function(){var g=document.getElementById("ganeshaImg"),a=document.getElementById("arrGanesha");if(g&&a){a.src=g.getAttribute("src");}})();
+(function(){var g=document.getElementById("ganeshaImg"),a=document.getElementById("arrGanesha");if(g&&a){a.src=g.getAttribute("src");}
+ if(g&&g.parentElement&&!g.parentElement.querySelector(".gan-shine")){var sh=document.createElement("div");sh.className="gan-shine";var u="url('"+g.getAttribute("src")+"')";sh.style.webkitMaskImage=u;sh.style.maskImage=u;g.parentElement.appendChild(sh);}})();
 function share(){const data={title:"Riya & Prasad — Wedding Invitation",text:"You are invited! Riya weds Prasad · 24 & 25 Feb 2027 · Nathdwara.",url:location.href};
  if(navigator.share){navigator.share(data).catch(()=>{});return;}
  $("#sheetBody").innerHTML=`<div style="font-family:var(--head);font-size:22px;text-align:center;margin-bottom:12px;">Share the invitation</div>
