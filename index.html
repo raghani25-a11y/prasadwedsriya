@@ -1474,8 +1474,9 @@ function kickAudio(){
  if(!Audio_.started){startAudio();if(!Audio_.on)setMusic(true);return;}
  if(Audio_.el&&Audio_.el.paused&&!Audio_.el.ended){Audio_.el.play().then(()=>fadeTo(.62)).catch(()=>{});}
 }
-["pointerdown","pointerup","touchend","click","keydown"].forEach(ev=>
- addEventListener(ev,kickAudio,{passive:true,capture:true}));
+["touchstart","pointerdown","pointerup","touchend","click","keydown"].forEach(ev=>{
+ addEventListener(ev,kickAudio,{passive:true,capture:true});
+ document.addEventListener(ev,kickAudio,{passive:true,capture:true}); });   // first touch ANYWHERE starts the song (iOS needs touchstart + a direct gesture)
 document.addEventListener("visibilitychange",()=>{ if(!document.hidden&&Audio_.on&&Audio_.el&&Audio_.el.paused&&!Audio_.el.ended){Audio_.el.play().catch(()=>{});}});
 
 /* ============================================================
