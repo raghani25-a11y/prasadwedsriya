@@ -1478,6 +1478,8 @@ function kickAudio(){
  addEventListener(ev,kickAudio,{passive:true,capture:true});
  document.addEventListener(ev,kickAudio,{passive:true,capture:true}); });   // first touch ANYWHERE starts the song (iOS needs touchstart + a direct gesture)
 document.addEventListener("visibilitychange",()=>{ if(!document.hidden&&Audio_.on&&Audio_.el&&Audio_.el.paused&&!Audio_.el.ended){Audio_.el.play().catch(()=>{});}});
+/* start the song 5s after load — the same beat as the Ganesha's slide-up (a touch before then starts it sooner; phones still need that first touch for sound) */
+setTimeout(()=>{ if(!Audio_.started && Audio_.on!==false){ try{startAudio(); setMusic(true);}catch(e){} } },5000);
 
 /* ============================================================
    VERTICAL NAVIGATION (scroll upward)
