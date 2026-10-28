@@ -391,7 +391,7 @@ body.no-frame #frame{display:none;}
   background:transparent;border:1px solid var(--gold);border-radius:999px;padding:14px 22px;min-height:48px;cursor:pointer;transition:.25s;}
 .btn-ghost:active{transform:scale(.96);background:var(--gold);color:var(--bg1);}
 /* the scratch prompt wears a traditional display face, with a shining gold border */
-#revealBtn{font-family:var(--script),cursive;text-transform:none;letter-spacing:.01em;
+#revealBtn{position:relative;overflow:hidden;font-family:var(--script),cursive;text-transform:none;letter-spacing:.01em;
   font-size:27px;line-height:1.1;color:var(--accent);padding:8px 30px;font-weight:700;
   -webkit-text-stroke:.8px var(--accent);
   border:2px solid transparent;border-radius:999px;
@@ -403,6 +403,12 @@ body.no-frame #frame{display:none;}
 @keyframes btnShine{to{background-position:0 0,-320% 0;}}
 #revealBtn:active{transform:scale(.96);}
 body.reduced #revealBtn{animation:none;}
+/* progress fill on Tap-to-Reveal — gold fills across as the 7s auto-reveal approaches */
+.rb-fill{position:absolute;left:0;top:0;bottom:0;width:100%;transform:scaleX(0);transform-origin:left center;z-index:0;pointer-events:none;
+  background:linear-gradient(90deg,rgba(201,162,74,.5),rgba(240,207,120,.78) 58%,rgba(255,233,168,.9));}
+#revealBtn.run .rb-fill{animation:ohFill var(--prog,7000ms) linear forwards;}
+.rb-lbl{position:relative;z-index:1;}
+body.reduced #revealBtn .rb-fill{animation:none;transform:scaleX(0);}
 
 /* scroll cue */
 .cue{display:none;   /* retired: the animated #navHint popup now handles every slide's slide-up prompt at the right moment */
@@ -1127,7 +1133,7 @@ body.reduced .gi-img{animation:none;}
           </div>
         </div>
       </div>
-      <button class="btn-ghost" id="revealBtn">Tap to Reveal</button>
+      <button class="btn-ghost" id="revealBtn"><span class="rb-fill"></span><span class="rb-lbl">Tap to Reveal</span></button>
 
       <div class="countdown" id="countdown">
         <div class="cd-label">Counting to the wedding ceremony</div>
@@ -1546,11 +1552,13 @@ function onEnter(i,prev){
  setActive(i);
  clearNav();                                  // drop any pending hint/auto-advance from the slide we left
  if(scAutoT){clearTimeout(scAutoT);scAutoT=null;}   // drop any pending scratch auto-reveal from a slide we left
+ {const rb=$("#revealBtn");if(rb)rb.classList.remove("run");}   // and its progress fill
  if(i===EV){ enterSlide4(); setTimeout(()=>{if(index===EV)launchEventFireworks(occIdx);},320); }  // events hint comes from setOcc
  if(i===CI){ startCoupleAuto(); } else if(prev===CI){ stopCoupleAuto(); }
  const id=slides[i]&&slides[i].id;
  if(id==="slide1"){ armHint(1300,true); }       // arrival → prompt, then auto slide-up
- else if(id==="slide2"){ scAutoT=setTimeout(()=>{ if(index===i&&!scDone){finishScratch();} },7000); }  // dates: if the guest hasn't scratched within 7s, the card reveals itself → fireworks → auto slide-up
+ else if(id==="slide2"){ scAutoT=setTimeout(()=>{ if(index===i&&!scDone){finishScratch();} },7000);  // dates: if the guest hasn't scratched within 7s, the card reveals itself → fireworks → auto slide-up
+   const rb=$("#revealBtn"); if(rb&&!scDone){ rb.classList.remove("run"); void rb.offsetWidth; rb.style.setProperty("--prog","7000ms"); rb.classList.add("run"); } }  // its progress fill counts down the 7s
  else if(id==="slide5"){ armHint(700,true,10000); }  // map → prompt, then auto-advance to the thank-you after ~10s
  // couple(slide3) arms after the family cycle returns; thank-you(slide6) stays quiet
  showNavBar();   // the BACK|NEXT bar stays on every slide so guests can always tap through
@@ -1664,7 +1672,7 @@ function checkScratch(){if(scDone||!scReady)return;
   if(scCleared>=CFG.scratchThreshold)finishScratch();}catch(e){}
 }
 function finishScratch(){if(scDone)return;scDone=true;if(scAutoT){clearTimeout(scAutoT);scAutoT=null;}sc.classList.add("done");hideScHint();
- {const rb=$("#revealBtn");if(rb)rb.style.display="none";}   // hide the shortcut once the dates are revealed
+ {const rb=$("#revealBtn");if(rb){rb.classList.remove("run");rb.style.display="none";}}   // hide the shortcut (and stop its fill) once the dates are revealed
  {const ss=$("#scScript");if(ss&&ss.textContent.trim()!=="Shubh Muhurat"){ss.textContent="Shubh Muhurat";ss.classList.add("sc-swap");}}  // prompt → auspicious words once scratched
  const st=$("#scStage");if(st)st.classList.add("done");scTiltReset();
  {const ru=document.querySelector("#slide2 .reveal-under");if(ru)ru.classList.add("revealed");}  // dates materialise with a magical stagger
