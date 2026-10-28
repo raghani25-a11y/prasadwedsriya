@@ -802,6 +802,15 @@ body.reduced .gan-shine{display:none;}
 @keyframes ohGlow{0%,100%{box-shadow:0 4px 14px rgba(80,18,28,.5),0 0 0 1.4px #d8b45e;}
   50%{box-shadow:0 4px 22px rgba(120,24,40,.7),0 0 0 1.4px #f0cf78,0 0 0 5px rgba(232,198,112,.28);}}
 body.reduced #navHint .oh-arrow,body.reduced .oh-t{animation:none;}
+/* draining progress cue under the pill — shows the countdown to auto-advance, so guests know it will move on its own */
+.oh-prog{height:3px;width:76px;margin-top:6px;border-radius:999px;overflow:hidden;opacity:0;transition:opacity .35s var(--ease);
+  background:rgba(90,18,28,.32);box-shadow:inset 0 0 0 1px rgba(255,220,140,.3);}
+.oh-prog.run{opacity:1;}
+.oh-prog::after{content:"";display:block;height:100%;width:100%;border-radius:999px;transform-origin:left center;transform:scaleX(1);
+  background:linear-gradient(90deg,#d8b45e,#ffe9a8);box-shadow:0 0 7px rgba(232,198,112,.85);}
+.oh-prog.run::after{animation:ohDrain var(--prog,5000ms) linear forwards;}
+@keyframes ohDrain{from{transform:scaleX(1);}to{transform:scaleX(0);}}
+body.reduced .oh-prog{display:none;}
 #slide4.occ-bottom #occScrim{background:linear-gradient(0deg,
   var(--bg2) 0%, var(--bg2) 20%, color-mix(in srgb,var(--bg2) 80%,transparent) 36%,
   color-mix(in srgb,var(--bg2) 42%,transparent) 48%, transparent 60%),
@@ -1234,7 +1243,7 @@ body.reduced .gi-img{animation:none;}
 </div></div>
 
 <!-- global slide-up hint (appears on every slide after a few idle seconds, names what's next) -->
-<div id="navHint"><span class="oh-arrow" data-orn="up"></span><span class="oh-t">Slide up for more</span></div>
+<div id="navHint"><span class="oh-arrow" data-orn="up"></span><span class="oh-t">Slide up for more</span><i class="oh-prog"></i></div>
 
 <div id="dots"></div>
 
@@ -1521,12 +1530,14 @@ function updateDots(){$$("#dots i").forEach((d,i)=>d.classList.toggle("on",i===i
 function onEnter(i,prev){
  setActive(i);
  clearNav();                                  // drop any pending hint/auto-advance from the slide we left
+ if(scAutoT){clearTimeout(scAutoT);scAutoT=null;}   // drop any pending scratch auto-reveal from a slide we left
  if(i===EV){ enterSlide4(); setTimeout(()=>{if(index===EV)launchEventFireworks(occIdx);},320); }  // events hint comes from setOcc
  if(i===CI){ startCoupleAuto(); } else if(prev===CI){ stopCoupleAuto(); }
  const id=slides[i]&&slides[i].id;
  if(id==="slide1"){ armHint(1300,true); }       // arrival → prompt, then auto slide-up
- else if(id==="slide5"){ armHint(700,false); }  // map → prompt only (guests linger on the venue)
- // dates(slide2) arms after the card is scratched; couple(slide3) arms after the family cycle returns; thank-you(slide6) stays quiet
+ else if(id==="slide2"){ scAutoT=setTimeout(()=>{ if(index===i&&!scDone){finishScratch();} },7000); }  // dates: if the guest hasn't scratched within 7s, the card reveals itself → fireworks → auto slide-up
+ else if(id==="slide5"){ armHint(700,true,10000); }  // map → prompt, then auto-advance to the thank-you after ~10s
+ // couple(slide3) arms after the family cycle returns; thank-you(slide6) stays quiet
 }
 
 /* ============================================================
@@ -1636,7 +1647,7 @@ function checkScratch(){if(scDone||!scReady)return;
   scCleared=clear/tot;dbg.scr=(scCleared*100).toFixed(0);
   if(scCleared>=CFG.scratchThreshold)finishScratch();}catch(e){}
 }
-function finishScratch(){if(scDone)return;scDone=true;sc.classList.add("done");hideScHint();
+function finishScratch(){if(scDone)return;scDone=true;if(scAutoT){clearTimeout(scAutoT);scAutoT=null;}sc.classList.add("done");hideScHint();
  {const rb=$("#revealBtn");if(rb)rb.style.display="none";}   // hide the shortcut once the dates are revealed
  {const ss=$("#scScript");if(ss&&ss.textContent.trim()!=="Shubh Muhurat"){ss.textContent="Shubh Muhurat";ss.classList.add("sc-swap");}}  // prompt → auspicious words once scratched
  const st=$("#scStage");if(st)st.classList.add("done");scTiltReset();
@@ -1877,22 +1888,25 @@ function setOcc(i,silent){i=clamp(i,0,CFG.occasions.length-1);occIdx=i;
  $$(".zip-stop").forEach((s,si)=>s.classList.toggle("on",si===i));
  setPull(i/(CFG.occasions.length-1));dbg.zip=i;
  if(!silent){addEnergy(.16);haptic(6);if(typeof index!=="undefined"&&index===EV)launchEventFireworks(i);}
- armHint(1200,false);     // events: name the next occasion, but let guests read at their own pace (no auto-advance)
+ armHint(900,true,15000);     // events: name the next occasion, then auto-advance after ~15s (a touch pauses it)
 }
 /* slide-up hint + optional auto-advance. the green popup names what's next; on the guided slides it
    also slides up on its own ~5s after appearing, unless the guest touches the screen first. */
-let navHintT=null,autoAdvT=null;
+let navHintT=null,autoAdvT=null,scAutoT=null;
 function nextDest(){
  if(index===EV){ return (occIdx<CFG.occasions.length-1)?CFG.occasions[occIdx+1].title:"The Venue"; }
  const id=slides[index]&&slides[index].id;
  return ({slide1:"The Date",slide2:"The Couple",slide3:"The Celebrations",slide5:"A Thank You"})[id]||null;
 }
-function hideNavHint(){const h=$("#navHint");if(h)h.classList.remove("show");}
+function hideNavHint(){const h=$("#navHint");if(h)h.classList.remove("show");const pr=$("#navHint .oh-prog");if(pr)pr.classList.remove("run");}
 function clearNav(){hideNavHint();if(navHintT){clearTimeout(navHintT);navHintT=null;}if(autoAdvT){clearTimeout(autoAdvT);autoAdvT=null;}}
 function autoAdvance(){ if(index===EV){ (occIdx<CFG.occasions.length-1)?setOcc(occIdx+1):goTo(EV+1);} else goTo(index+1); }
 function showNavHint(auto,autoDelay){ const lbl=nextDest();if(!lbl)return;
  const t=$("#navHint .oh-t");if(t)t.textContent="Slide up for "+lbl;
  const h=$("#navHint");if(h)h.classList.add("show");
+ const pr=$("#navHint .oh-prog");                          // the draining progress cue shows the countdown to auto-advance
+ if(pr){ pr.classList.remove("run"); void pr.offsetWidth;  // reflow to restart the drain from full
+   if(auto){ pr.style.setProperty("--prog",(autoDelay||5000)+"ms"); pr.classList.add("run"); } }
  if(auto){ const cur=index,curOcc=occIdx;
    autoAdvT=setTimeout(()=>{ if(index!==cur||(index===EV&&occIdx!==curOcc))return; autoAdvance(); },autoDelay||5000); }}
 function armHint(delay,auto,autoDelay){ clearNav(); if(!nextDest())return;
