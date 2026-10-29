@@ -408,10 +408,10 @@ body.no-frame #frame{display:none;}
 @keyframes btnShine{to{background-position:0 0,-320% 0;}}
 #revealBtn:active{transform:scale(.96);}
 body.reduced #revealBtn{animation:none;}
-/* progress fill on Tap-to-Reveal — gold fills across as the 7s auto-reveal approaches */
+/* progress fill on Tap-to-Reveal — gold fills across as the 12s auto-reveal approaches */
 .rb-fill{position:absolute;left:0;top:0;bottom:0;width:100%;transform:scaleX(0);transform-origin:left center;z-index:0;pointer-events:none;
   background:linear-gradient(90deg,rgba(201,162,74,.5),rgba(240,207,120,.78) 58%,rgba(255,233,168,.9));}
-#revealBtn.run .rb-fill{animation:ohFill var(--prog,7000ms) linear forwards;}
+#revealBtn.run .rb-fill{animation:ohFill var(--prog,12000ms) linear forwards;}
 .rb-lbl{position:relative;z-index:1;}
 body.reduced #revealBtn .rb-fill{animation:none;transform:scaleX(0);}
 
@@ -441,6 +441,9 @@ body.reduced #revealBtn .rb-fill{animation:none;transform:scaleX(0);}
 .seal-emblem{font-family:var(--head);font-size:clamp(40px,14vw,80px);}
 
 /* ======================= SLIDE 2 scratch + countdown ======================= */
+/* anchor slide-2 content from the top so "Shubh Muhurat" always clears the arch — even after the countdown appears and makes the column taller */
+#slide2{justify-content:flex-start;}
+#slide2 .wrap{margin-top:clamp(52px,11vh,104px);}
 .scratch-script{font-family:var(--script),cursive;font-weight:400;
   font-size:clamp(30px,8.6vw,46px);line-height:1.42;padding:8px 16px 12px;margin:clamp(16px,5.5vw,36px) auto 8px;
   width:100%;overflow:visible;
@@ -1548,12 +1551,14 @@ deck.addEventListener("pointermove",e=>{touch.x=e.clientX;touch.y=e.clientY;
    if((index===0&&d>0)||(index===slides.length-1&&d<0))d*=.35;dy=d;
    const now=performance.now(),dt=now-lastT;if(dt>0){vel=(e.clientY-lastY)/dt;lastY=e.clientY;lastT=now;dbg.vel=vel.toFixed(2);}
    setY(d);addEnergy(.006);}});
+let arrivalReady=true;   // slide-1 nav stays locked until the arrival choreography (the "Begin our story" button) has fully appeared
 function up(e){touch.on=false;touch.x=-999;touch.y=-999;if(!drag)return;drag=false;if(axis!=="v"){axis=null;return;}
  const t=vh()*.18,vT=.4;
  if(index===EV){ // on events slide, vertical gesture steps through occasions, then leaves at the ends
    if(dy<-40||vel<-vT){ if(occIdx<CFG.occasions.length-1){setOcc(occIdx+1);} else goTo(EV+1);}
    else if(dy>40||vel>vT){ if(occIdx>0){setOcc(occIdx-1);} else goTo(EV-1);}
    axis=null;return;}
+ if(index===0&&!arrivalReady){snap();axis=null;return;}   // arrival slide: let the names finish before moving on
  if((dy<-t||vel<-vT)&&index<slides.length-1)goTo(index+1);
  else if((dy>t||vel>vT)&&index>0)goTo(index-1);
  else snap();axis=null;}
@@ -1563,10 +1568,10 @@ deck.addEventListener("pointerup",up);deck.addEventListener("pointercancel",up);
 let wheelLock=false;
 addEventListener("wheel",e=>{if(wheelLock||animating)return;
  if(index===EV){ if(e.deltaY>0){occIdx<CFG.occasions.length-1?setOcc(occIdx+1):goTo(EV+1);} else {occIdx>0?setOcc(occIdx-1):goTo(EV-1);} }
- else{ if(e.deltaY>0)goTo(index+1); else goTo(index-1); }
+ else{ if(e.deltaY>0){ if(index===0&&!arrivalReady)return; goTo(index+1);} else goTo(index-1); }
  wheelLock=true;setTimeout(()=>wheelLock=false,700);},{passive:true});
 addEventListener("keydown",e=>{if(e.key==="ArrowUp"||e.key==="ArrowLeft"){if(index===EV&&occIdx>0)setOcc(occIdx-1);else goTo(index-1);}
- if(e.key==="ArrowDown"||e.key==="ArrowRight"){if(index===EV&&occIdx<CFG.occasions.length-1)setOcc(occIdx+1);else goTo(index+1);}});
+ if(e.key==="ArrowDown"||e.key==="ArrowRight"){if(index===EV&&occIdx<CFG.occasions.length-1)setOcc(occIdx+1);else if(!(index===0&&!arrivalReady))goTo(index+1);}});
 
 // dots
 const dotsEl=$("#dots");slides.forEach((_,i)=>{const d=document.createElement("i");if(i===0)d.className="on";
@@ -1582,8 +1587,8 @@ function onEnter(i,prev){
  if(i===CI){ startCoupleAuto(); } else if(prev===CI){ stopCoupleAuto(); }
  const id=slides[i]&&slides[i].id;
  if(id==="slide1"){ armHint(1300,true); }       // arrival → prompt, then auto slide-up
- else if(id==="slide2"){ scAutoT=setTimeout(()=>{ if(index===i&&!scDone){finishScratch();} },7000);  // dates: if the guest hasn't scratched within 7s, the card reveals itself → fireworks → auto slide-up
-   const rb=$("#revealBtn"); if(rb&&!scDone){ rb.classList.remove("run"); void rb.offsetWidth; rb.style.setProperty("--prog","7000ms"); rb.classList.add("run"); } }  // its progress fill counts down the 7s
+ else if(id==="slide2"){ scAutoT=setTimeout(()=>{ if(index===i&&!scDone){finishScratch();} },12000);  // dates: if the guest hasn't scratched within 12s, the card reveals itself → fireworks → auto slide-up
+   const rb=$("#revealBtn"); if(rb&&!scDone){ rb.classList.remove("run"); void rb.offsetWidth; rb.style.setProperty("--prog","12000ms"); rb.classList.add("run"); } }  // its progress fill counts down the 12s
  else if(id==="slide5"){ armHint(700,true,10000); }  // map → prompt, then auto-advance to the thank-you after ~10s
  // couple(slide3) arms after the family cycle returns; thank-you(slide6) stays quiet
  showNavBar();   // the BACK|NEXT bar stays on every slide so guests can always tap through
@@ -1949,7 +1954,7 @@ function nextDest(){
 function navCanBack(){ return (index===EV&&occIdx>0) || (index>0); }
 function updateNavButtons(){ const back=$("#navBack"),next=$("#navNext");
  if(back)back.classList.toggle("disabled",!navCanBack());
- if(next)next.classList.toggle("disabled",!nextDest()); }
+ if(next)next.classList.toggle("disabled",!nextDest()||(index===0&&!arrivalReady)); }
 function showNavBar(){ const h=$("#navHint");if(h)h.classList.add("show"); updateNavButtons(); }   // BACK|NEXT bar is persistent once the invitation is open
 function resetNavFill(){ const n=$("#navNext");if(n)n.classList.remove("run"); }
 function clearNav(){ resetNavFill(); if(navHintT){clearTimeout(navHintT);navHintT=null;} if(autoAdvT){clearTimeout(autoAdvT);autoAdvT=null;} }  // a touch pauses the countdown but leaves the buttons in place
@@ -2109,10 +2114,10 @@ init();
    let risen=false;
    const riseUp=()=>{ if(risen)return; risen=true;
      try{ if(!Audio_.started){startAudio();setMusic(true);} else if(Audio_.el&&Audio_.el.paused&&!Audio_.el.ended){Audio_.el.play().catch(()=>{});} }catch(e){}
-     gi.classList.add("rise"); document.body.classList.add("intro-done"); try{addEnergy(.4);}catch(e){} try{haptic([10,30,16]);}catch(e){} try{showNavBar();}catch(e){}
+     gi.classList.add("rise"); document.body.classList.add("intro-done"); arrivalReady=false; try{addEnergy(.4);}catch(e){} try{haptic([10,30,16]);}catch(e){} try{showNavBar();}catch(e){}
      setTimeout(()=>{try{if(gi&&gi.parentNode)gi.remove();}catch(e){}},2100);   // shrine is gone after the sweep no matter what
      try{ const cta=document.querySelector("#slide1 .arrival-cta");let armed=false;
-       const armArrival=()=>{ if(armed||index!==0)return; armed=true; try{armHint(600,true);}catch(e){} };
+       const armArrival=()=>{ if(armed||index!==0)return; armed=true; arrivalReady=true; try{updateNavButtons();}catch(e){} try{armHint(600,true);}catch(e){} };
        if(cta&&!reduced){ cta.addEventListener("animationend",armArrival,{once:true}); setTimeout(armArrival,12200); } else { setTimeout(armArrival,600); }
      }catch(e){} };
    ["click","pointerup","touchend"].forEach(ev=>{try{gi.addEventListener(ev,riseUp,{passive:true});}catch(e){try{gi.addEventListener(ev,riseUp);}catch(_){}}});  // the "Open the Invitation" button (and any tap) lifts the shrine and starts the music — no auto-lift
